@@ -1,0 +1,30 @@
+# --- General ---
+*.log
+logs/
+.DS_Store
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# --- Builds ---
+dist/
+build/
+.turbo/
+.vercel/
+
+# --- IDE ---
+.vscode/
+!.vscode/extensions.json
+.idea/
+
+# --- OS ---
+Thumbs.db
+
