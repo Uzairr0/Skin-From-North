@@ -169,7 +169,7 @@ export default function AdminOrders() {
               Orders
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
-              All orders placed from checkout. They load from the API at skin-from-north.onrender.com.
+              All orders placed from checkout appear below.
             </p>
           </div>
 

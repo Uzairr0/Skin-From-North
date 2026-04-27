@@ -7,10 +7,10 @@ import routes from './routes'
 async function main() {
   const app = express()
 
+  // TEMP (local): allow any origin. We'll lock this down later.
   app.use(
     cors({
-      origin: env.clientOrigin,
-      credentials: true,
+      origin: '*',
     }),
   )
   app.use(express.json({ limit: '1mb' }))

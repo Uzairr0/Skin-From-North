@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express'
+import mongoose from 'mongoose'
 import { OrderModel } from '../models/Order'
 import { sendEmail } from '../utils/sendEmail'
 import { orderConfirmationEmail } from '../utils/orderConfirmationEmail'
@@ -21,6 +22,14 @@ export async function createOrder(req: Request, res: Response) {
     const totalNumber = Number(total)
     if (!Number.isFinite(totalNumber) || totalNumber < 0) {
       return res.status(400).json({ ok: false, message: 'Invalid total' })
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        ok: false,
+        message:
+          'Order service is temporarily unavailable (database). Please try again in a few minutes.',
+      })
     }
 
     const created = await OrderModel.create({
