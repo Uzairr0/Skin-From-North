@@ -4,6 +4,7 @@ import Seo from '../components/Seo'
 import { Input } from '../components/ui/Input'
 import { Button } from '../components/ui/Button'
 import { useGlobalError } from '../context/ErrorContext'
+import { API_URL } from '../config/api'
 
 const STORAGE_KEY = 'skin.admin.token'
 
@@ -19,7 +20,7 @@ export default function AdminLogin() {
     if (isSubmitting) return
     setIsSubmitting(true)
     try {
-      const res = await fetch('http://localhost:5000/api/admin/login', {
+      const res = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password: password.trim() }),

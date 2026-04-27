@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Seo from '../components/Seo'
 import { useGlobalError } from '../context/ErrorContext'
 import { ADMIN_TOKEN_STORAGE_KEY } from './AdminLogin'
+import { API_URL } from '../config/api'
 
 type OrderStatus = 'Pending' | 'Confirmed' | 'Delivered'
 
@@ -82,7 +83,7 @@ export default function AdminOrders() {
           return
         }
 
-        const res = await fetch('http://localhost:5000/api/orders', {
+        const res = await fetch(`${API_URL}/api/orders`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         const data = (await res.json().catch(() => null)) as any
@@ -131,7 +132,7 @@ export default function AdminOrders() {
     if (updatingId) return
     setUpdatingId(orderId)
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const res = await fetch(`${API_URL}/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +169,7 @@ export default function AdminOrders() {
               Orders
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
-              All orders placed from checkout. Make sure the backend is running on port 5000.
+              All orders placed from checkout. They load from the API at skin-from-north.onrender.com.
             </p>
           </div>
 

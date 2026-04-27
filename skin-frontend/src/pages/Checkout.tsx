@@ -5,6 +5,7 @@ import { useGlobalError } from '../context/ErrorContext'
 import Seo from '../components/Seo'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
+import { API_URL } from '../config/api'
 
 function formatPricePKR(value: number) {
   try {
@@ -102,7 +103,7 @@ export default function Checkout() {
         total,
       }
 
-      const res = await fetch('http://localhost:5000/api/orders', {
+      const res = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
