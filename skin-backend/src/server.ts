@@ -30,6 +30,9 @@ async function main() {
   try {
     await connectDb()
   } catch (e) {
+    // In production we should fail fast so the deploy clearly shows the DB issue.
+    // In dev, keep the server up (some routes may still work).
+    if (env.nodeEnv === 'production') throw e
     // eslint-disable-next-line no-console
     console.warn('MongoDB not connected:', e instanceof Error ? e.message : e)
   }
