@@ -7,11 +7,20 @@ import routes from './routes'
 async function main() {
   const app = express()
 
-  // TEMP (local): allow any origin. We'll lock this down later.
   app.use(
-    cors({
-      origin: '*',
-    }),
+    cors(
+      env.nodeEnv === 'production'
+        ? {
+            // Production: lock to your deployed frontend origin
+            origin: env.clientOrigin,
+            credentials: true,
+          }
+        : {
+            // Dev: allow any origin (reflected) so local tooling works with credentials/cookies if needed
+            origin: true,
+            credentials: true,
+          },
+    ),
   )
   app.use(express.json({ limit: '1mb' }))
 
