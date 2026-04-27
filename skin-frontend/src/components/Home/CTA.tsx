@@ -2,7 +2,7 @@ import { FaWhatsapp } from 'react-icons/fa'
 
 export default function CTA() {
   // Replace with your real WhatsApp number in international format (no + or spaces)
-  const phone = '923001234567'
+  const phone = '923184263597'
   const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
     'Hi! I need help choosing the right skincare product.',
   )}`

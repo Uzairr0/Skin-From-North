@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { FiMenu, FiSearch, FiShoppingBag, FiUser, FiX } from 'react-icons/fi'
+import { FiMenu, FiSearch, FiShoppingBag, FiX } from 'react-icons/fi'
 import { FaWhatsapp } from 'react-icons/fa'
 import { useCart } from '../context/CartContext'
 import { useProductSearch } from '../context/SearchContext'
@@ -35,8 +35,10 @@ export function Navbar({
   const { query, setQuery } = useProductSearch()
   const cartCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items])
   const [searchOpen, setSearchOpen] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   const searchWrapRef = useRef<HTMLDivElement | null>(null)
+  const mobileSearchInnerRef = useRef<HTMLDivElement | null>(null)
 
   const isHashHref = (href: string) => href.includes('#')
 
@@ -101,11 +103,21 @@ export function Navbar({
       if (!el) return
       if (e.target instanceof Node && el.contains(e.target)) return
       setSearchOpen(false)
+      setMobileSearchOpen(false)
       setActiveIndex(-1)
     }
     window.addEventListener('mousedown', onPointerDown)
     return () => window.removeEventListener('mousedown', onPointerDown)
   }, [])
+
+  useEffect(() => {
+    if (!mobileSearchOpen) return
+    // Focus after render
+    requestAnimationFrame(() => {
+      const input = mobileSearchInnerRef.current?.querySelector('input')
+      if (input instanceof HTMLInputElement) input.focus()
+    })
+  }, [mobileSearchOpen])
 
   return (
     <header
@@ -286,16 +298,14 @@ export function Navbar({
               type="button"
               className="grid h-9 w-9 place-items-center rounded-lg text-slate-700 transition-all duration-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/25 md:hidden sm:h-10 sm:w-10"
               aria-label="Search"
+              aria-expanded={mobileSearchOpen}
+              onClick={() => {
+                setMobileSearchOpen((v) => !v)
+                setSearchOpen(false)
+                setActiveIndex(-1)
+              }}
             >
               <FiSearch className="h-[18px] w-[18px]" />
-            </button>
-
-            <button
-              type="button"
-              className="grid h-9 w-9 place-items-center rounded-lg text-slate-700 transition-all duration-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/25 sm:h-10 sm:w-10"
-              aria-label="Account"
-            >
-              <FiUser className="h-[18px] w-[18px]" />
             </button>
 
             <Link
@@ -337,6 +347,128 @@ export function Navbar({
             </button>
           </div>
         </div>
+
+        {/* Mobile search bar (toggle via icon) */}
+        {mobileSearchOpen ? (
+          <div ref={searchWrapRef} className="border-t border-slate-100 bg-white lg:hidden">
+            <div className="mx-auto max-w-[1200px] px-4 py-3">
+              <div ref={mobileSearchInnerRef} className="relative">
+                <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
+                <Input
+                  type="search"
+                  placeholder="Search products, brands..."
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value)
+                    if (location.pathname !== '/shop') navigate('/shop')
+                    setSearchOpen(true)
+                    setActiveIndex(-1)
+                  }}
+                  onFocus={() => {
+                    if (query.trim()) setSearchOpen(true)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setSearchOpen(false)
+                      setMobileSearchOpen(false)
+                      setActiveIndex(-1)
+                      return
+                    }
+
+                    if (!suggestions.length) {
+                      if (e.key === 'Enter' && query.trim()) {
+                        if (location.pathname !== '/shop') navigate('/shop')
+                        setSearchOpen(false)
+                        setMobileSearchOpen(false)
+                      }
+                      return
+                    }
+
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault()
+                      setSearchOpen(true)
+                      setActiveIndex((v) => Math.min(suggestions.length - 1, v + 1))
+                      return
+                    }
+                    if (e.key === 'ArrowUp') {
+                      e.preventDefault()
+                      setActiveIndex((v) => Math.max(-1, v - 1))
+                      return
+                    }
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      const chosen = suggestions[Math.max(0, activeIndex)] ?? suggestions[0]
+                      if (!chosen) return
+                      setQuery('')
+                      setSearchOpen(false)
+                      setMobileSearchOpen(false)
+                      setActiveIndex(-1)
+                      navigate(`/product/${chosen.id}`)
+                    }
+                  }}
+                  className="pl-10 pr-10 focus:ring-[#2f5d3a]/25 focus:border-[#2f5d3a]/30"
+                />
+
+                <button
+                  type="button"
+                  className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                  aria-label="Close search"
+                  onClick={() => {
+                    setMobileSearchOpen(false)
+                    setSearchOpen(false)
+                    setActiveIndex(-1)
+                  }}
+                >
+                  <FiX className="h-[18px] w-[18px]" />
+                </button>
+
+                {searchOpen && suggestions.length ? (
+                  <div
+                    role="listbox"
+                    aria-label="Search suggestions"
+                    className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.14)]"
+                  >
+                    <div className="max-h-[360px] overflow-auto p-2">
+                      {suggestions.map((p, idx) => {
+                        const active = idx === activeIndex
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            role="option"
+                            aria-selected={active}
+                            onMouseEnter={() => setActiveIndex(idx)}
+                            onClick={() => {
+                              setQuery('')
+                              setSearchOpen(false)
+                              setMobileSearchOpen(false)
+                              setActiveIndex(-1)
+                              navigate(`/product/${p.id}`)
+                            }}
+                            className={[
+                              'flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition-colors duration-150',
+                              active ? 'bg-[#2f5d3a]/10' : 'hover:bg-slate-50',
+                            ].join(' ')}
+                          >
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-semibold text-slate-900">{p.name}</div>
+                              <div className="mt-0.5 flex items-center gap-2">
+                                <span className="truncate text-xs text-slate-600">{p.brand}</span>
+                                <span className="h-1 w-1 rounded-full bg-slate-300" aria-hidden="true" />
+                                <span className="truncate text-xs text-slate-600">{p.skinType}</span>
+                              </div>
+                            </div>
+                            <span className="shrink-0 text-xs font-semibold text-slate-700">Enter ↵</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {/* Mobile dropdown */}
         {mobileOpen ? (
