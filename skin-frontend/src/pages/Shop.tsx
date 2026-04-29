@@ -84,7 +84,7 @@ export default function Shop() {
                 Shop
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base">
-                Discover premium imported skincare curated for every routine—clean, effective, and authentic.
+                Discover premium imported skincare curated for every day routine - clean, effective, and authentic.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 <span className="rounded-full bg-[#2f5d3a]/10 px-3 py-1 text-xs font-semibold text-[#2f5d3a] ring-1 ring-[#2f5d3a]/15">

@@ -58,7 +58,7 @@ export default function Footer() {
 
             <div className="mt-5 flex items-center gap-3">
               <a
-                href="https://instagram.com/"
+                href="https://www.instagram.com/skinfromnorth?igsh=MmFiNmlsazNlcmY5&utm_source=qr"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-gray-300 transition-all duration-300 hover:bg-white/10 hover:text-white"
@@ -159,16 +159,16 @@ export default function Footer() {
               <li>
                 <span className="text-gray-500">Phone:</span>{' '}
                 <a
-                  href="tel:+923001234567"
+                  href="tel:+923184263597"
                   className="transition-all duration-300 hover:text-white"
                 >
-                  +92 300 1234567
+                  +923184263597
                 </a>
               </li>
               <li>
                 <span className="text-gray-500">WhatsApp:</span>{' '}
                 <a
-                  href="https://wa.me/923001234567"
+                  href="https://wa.me/923184263597"
                   target="_blank"
                   rel="noreferrer"
                   className="transition-all duration-300 hover:text-white"
