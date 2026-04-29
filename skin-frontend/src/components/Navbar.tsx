@@ -16,6 +16,12 @@ export function Navbar({
   sticky?: boolean
   className?: string
 }) {
+  // Keep WhatsApp contact details consistent across the site.
+  const phone = '923184263597'
+  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
+    'Hi! I need help choosing the right skincare product.',
+  )}`
+
   const navItems: NavItem[] = useMemo(
     () => [
       { label: 'Home', href: '/' },
@@ -129,7 +135,7 @@ export function Navbar({
       ].join(' ')}
     >
       <div className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_35px_rgba(15,23,42,0.06)]">
-        <div className="mx-auto flex h-[72px] max-w-[1200px] items-center gap-3 px-4 sm:gap-5">
+        <div className="mx-auto grid h-[72px] max-w-[1200px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:gap-5">
           {/* Left: Logo */}
           <Link to="/" className="shrink-0 font-[ui-serif,Georgia,serif] leading-none text-[#0f3d37]">
             <span className="block text-[15px] font-bold tracking-widest sm:text-xl">
@@ -143,7 +149,7 @@ export function Navbar({
           {/* Center: Nav links (desktop) */}
           <nav
             className={[
-              'hidden min-w-0 flex-1 items-center justify-center text-[13px] font-medium tracking-wide text-slate-700 lg:flex',
+              'hidden min-w-0 items-center justify-center justify-self-center text-[13px] font-medium tracking-wide text-slate-700 lg:flex',
               // If space is tight (e.g. lg-xl), keep one row and allow horizontal scroll instead of dropping below.
               'flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
               'gap-4 lg:gap-6 xl:gap-8',
@@ -191,7 +197,7 @@ export function Navbar({
           </nav>
 
           {/* Right: icons + whatsapp */}
-          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3 justify-self-end">
             {/* Desktop search */}
             <div
               ref={searchWrapRef}
@@ -322,7 +328,7 @@ export function Navbar({
             </Link>
 
             <a
-              href="https://wa.me/"
+              href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
               className="hidden items-center gap-2 rounded-lg bg-[#2f5d3a] px-6 py-3 text-[13px] font-medium tracking-wide text-white transition-all duration-300 hover:bg-[#264d30] hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/30 2xl:flex"
@@ -511,7 +517,7 @@ export function Navbar({
               </nav>
 
               <a
-                href="https://wa.me/"
+                href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-[#2f5d3a] px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:bg-[#264d30] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/30"

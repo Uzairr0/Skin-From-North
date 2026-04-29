@@ -88,7 +88,7 @@ export function TrustBar({
           <FlagUS className="h-3.5 w-auto rounded-[2px]" />
         </span>
       ),
-      text: 'imported from Canada and usa',
+      text: 'imported from Canada and USA',
     },
     { icon: <span aria-hidden="true">🚚</span>, text: 'Fast Delivery Across Pakistan' },
   ]
