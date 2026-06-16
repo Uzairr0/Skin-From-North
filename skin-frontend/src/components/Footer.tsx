@@ -151,10 +151,10 @@ export default function Footer() {
               <li>
                 <span className="text-gray-500">Email:</span>{' '}
                 <a
-                  href="mailto:help@skinfromnorth.com"
+                  href="mailto:skinfromnorth@gmail.com"
                   className="transition-all duration-300 hover:text-white"
                 >
-                  help@skinfromnorth.com
+                  skinfromnorth@gmail.com
                 </a>
               </li>
               <li>

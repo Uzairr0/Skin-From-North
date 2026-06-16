@@ -26,7 +26,7 @@ async function sendOrderEmails(opts: {
       orderRef,
       items: orderItems,
       total,
-      contactEmail: 'help@skinfromnorth.com',
+      contactEmail: 'skinfromnorth@gmail.com',
       contactPhone: '+923184263597',
     })
 

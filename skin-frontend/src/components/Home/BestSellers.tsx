@@ -9,16 +9,18 @@ export default function BestSellers({ withAnchors = true }: { withAnchors?: bool
     <section id="shop" className="w-full bg-white">
       <div className="mx-auto max-w-[1200px] px-4 py-16 scroll-mt-24">
         {withAnchors ? <div id="products" /> : null}
-        <div className="mx-auto flex max-w-3xl items-center justify-center gap-4">
-          <div className="h-px flex-1 bg-[#e5e5e5]" aria-hidden="true" />
-          <h2 className="text-center text-2xl font-semibold tracking-wide text-slate-900 sm:text-3xl">
-            Best Sellers
-          </h2>
-          <div className="h-px flex-1 bg-[#e5e5e5]" aria-hidden="true" />
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="flex items-center justify-center gap-4">
+            <div className="h-px flex-1 bg-[#e5e5e5]" aria-hidden="true" />
+            <h2 className="text-2xl font-semibold tracking-wide text-slate-900 sm:text-3xl">
+              Best Sellers
+            </h2>
+            <div className="h-px flex-1 bg-[#e5e5e5]" aria-hidden="true" />
+          </div>
+          <p className="mt-4 text-sm text-slate-600">
+            Our most popular The Ordinary products — available to order today.
+          </p>
         </div>
-        <p className="mx-auto mt-4 max-w-lg text-center text-sm text-slate-600">
-          Our most popular The Ordinary products — available to order today.
-        </p>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {bestSellers.map((p) => (

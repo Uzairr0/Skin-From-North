@@ -59,7 +59,7 @@ export default function ShippingPolicy() {
             <h2 className="text-base font-semibold text-slate-900">Order updates</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">
               Save your order number from the confirmation page. For delivery updates, contact us
-              on WhatsApp at +92 318 4263597 or email help@skinfromnorth.com.
+              on WhatsApp at +92 318 4263597 or email skinfromnorth@gmail.com.
             </p>
           </div>
         </div>

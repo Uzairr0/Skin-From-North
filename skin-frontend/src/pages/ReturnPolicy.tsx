@@ -58,7 +58,7 @@ export default function ReturnPolicy() {
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
             <h2 className="text-base font-semibold text-slate-900">How to contact us</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              WhatsApp: +92 318 4263597 · Email: help@skinfromnorth.com. Include your order
+              WhatsApp: +92 318 4263597 · Email: skinfromnorth@gmail.com. Include your order
               number and a clear description of the issue.
             </p>
           </div>
