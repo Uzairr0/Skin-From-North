@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import { useGlobalError } from '../context/ErrorContext'
 import Seo from '../components/Seo'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
-import { API_URL } from '../config/api'
+import type { OrderPayload } from '../lib/placeOrder'
 
 function formatPricePKR(value: number) {
   try {
@@ -30,9 +29,7 @@ type FormState = {
 
 export default function Checkout() {
   const navigate = useNavigate()
-  const { items, clearCart } = useCart()
-  const { reportError } = useGlobalError()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { items } = useCart()
   const [payment, setPayment] = useState<'cod' | 'card'>('cod')
   const [form, setForm] = useState<FormState>({
     email: '',
@@ -43,13 +40,6 @@ export default function Checkout() {
     phone: '',
   })
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
-  const submitTimerRef = useRef<number | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (submitTimerRef.current !== null) window.clearTimeout(submitTimerRef.current)
-    }
-  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -63,9 +53,8 @@ export default function Checkout() {
     })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (isSubmitting) return
 
     const nextErrors: Partial<Record<keyof FormState, string>> = {}
     const required: Array<keyof FormState> = ['email', 'firstName', 'lastName', 'address', 'city', 'phone']
@@ -83,47 +72,34 @@ export default function Checkout() {
       return
     }
 
-    setIsSubmitting(true)
-
-    try {
-      const payload = {
-        customer: {
-          name: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-          address: form.address.trim(),
-          city: form.city.trim(),
-        },
-        items: items.map((i) => ({
-          name: i.name,
-          price: i.price,
-          quantity: i.quantity,
-          image: i.image,
-        })),
-        total,
-      }
-
-      const res = await fetch(`${API_URL}/api/orders`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      const data = (await res.json().catch(() => null)) as any
-      if (!res.ok) {
-        const msg =
-          (data && typeof data.message === 'string' && data.message) ||
-          `Failed to place order (HTTP ${res.status})`
-        throw new Error(msg)
-      }
-
-      clearCart()
-      navigate('/thank-you')
-    } catch (err) {
-      reportError(err, { action: 'place order' })
-    } finally {
-      setIsSubmitting(false)
+    const payload: OrderPayload = {
+      customer: {
+        name: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        address: form.address.trim(),
+        city: form.city.trim(),
+      },
+      items: items.map((i) => ({
+        productId: i.id,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+        image: i.image,
+      })),
+      paymentMethod: payment,
+      total,
     }
+
+    navigate('/thank-you', {
+      replace: true,
+      state: {
+        pending: true,
+        placementId: crypto.randomUUID(),
+        orderPayload: payload,
+        total,
+      },
+    })
   }
 
   const subtotal = useMemo(
@@ -295,12 +271,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="mt-8 w-full"
-                isLoading={isSubmitting}
-                loadingText="Placing order..."
-              >
+              <Button type="submit" className="mt-8 w-full">
                 Place Order
               </Button>
             </form>

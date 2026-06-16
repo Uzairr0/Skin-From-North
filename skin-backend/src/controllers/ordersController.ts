@@ -1,28 +1,89 @@
 import type { Request, Response } from 'express'
 import mongoose from 'mongoose'
+import { validateOrderItems } from '../data/catalog'
+import { env } from '../config/env'
 import { OrderModel } from '../models/Order'
 import { sendEmail } from '../utils/sendEmail'
 import { orderConfirmationEmail } from '../utils/orderConfirmationEmail'
+import { adminNewOrderEmail } from '../utils/adminNewOrderEmail'
+
+function formatOrderRef(id: string) {
+  return `SFN-${id.slice(-8).toUpperCase()}`
+}
+
+async function sendOrderEmails(opts: {
+  customer: Record<string, unknown>
+  orderRef: string
+  orderItems: Array<{ name: string; quantity: number; price: number }>
+  total: number
+  payment: 'cod' | 'card'
+}) {
+  const { customer: c, orderRef, orderItems, total, payment } = opts
+
+  try {
+    const html = orderConfirmationEmail({
+      customerName: String(c?.name ?? 'Customer'),
+      orderRef,
+      items: orderItems,
+      total,
+      contactEmail: 'help@skinfromnorth.com',
+      contactPhone: '+923184263597',
+    })
+
+    if (typeof c?.email === 'string' && c.email.trim()) {
+      await sendEmail({
+        to: c.email.trim(),
+        subject: `Order Confirmation ${orderRef} — Skin From North`,
+        html,
+      })
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('Order email failed:', e instanceof Error ? e.message : e)
+  }
+
+  try {
+    const adminHtml = adminNewOrderEmail({
+      orderRef,
+      customerName: String(c?.name ?? 'Customer'),
+      customerPhone: String(c?.phone ?? ''),
+      customerCity: String(c?.city ?? ''),
+      items: orderItems,
+      total,
+      paymentMethod: payment === 'cod' ? 'Cash on Delivery' : 'Card',
+    })
+
+    await sendEmail({
+      to: env.adminNotifyEmail,
+      subject: `New order ${orderRef} — Skin From North`,
+      html: adminHtml,
+    })
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('Admin order alert failed:', e instanceof Error ? e.message : e)
+  }
+}
 
 export async function createOrder(req: Request, res: Response) {
   try {
-    const { customer, items, total } = req.body as {
+    const { customer, items, paymentMethod } = req.body as {
       customer: unknown
       items: unknown
-      total: unknown
+      paymentMethod?: unknown
+      total?: unknown
     }
 
-    // Minimal runtime validation (keeps it API-ready without adding a validation library yet)
     if (!customer || typeof customer !== 'object') {
       return res.status(400).json({ ok: false, message: 'Invalid customer' })
     }
-    if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ ok: false, message: 'Items are required' })
+
+    const priced = validateOrderItems(items)
+    if ('error' in priced) {
+      return res.status(400).json({ ok: false, message: priced.error })
     }
-    const totalNumber = Number(total)
-    if (!Number.isFinite(totalNumber) || totalNumber < 0) {
-      return res.status(400).json({ ok: false, message: 'Invalid total' })
-    }
+
+    const payment =
+      paymentMethod === 'card' || paymentMethod === 'cod' ? paymentMethod : 'cod'
 
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({
@@ -34,42 +95,32 @@ export async function createOrder(req: Request, res: Response) {
 
     const created = await OrderModel.create({
       customer: customer as any,
-      items: items as any,
-      total: totalNumber,
+      items: priced.items,
+      total: priced.total,
+      paymentMethod: payment,
     })
 
-    // Send order confirmation email (do not fail the order if email fails)
-    try {
-      const c = created.customer as any
-      const orderItems = (created.items as any[]).map((i) => {
-        const name = String(i?.name ?? '')
-        const qty = Number(i?.quantity ?? 0)
-        const price = Number(i?.price ?? 0)
-        return { name, qty, price }
-      })
+    const orderRef = formatOrderRef(String(created._id))
+    const c = created.customer as any
+    const orderItems = priced.items.map((i) => ({
+      name: i.name,
+      quantity: i.quantity,
+      price: i.price,
+    }))
 
-      const html = orderConfirmationEmail({
-        customerName: String(c?.name ?? 'Customer'),
-        items: orderItems.map((i) => ({ name: i.name, quantity: i.qty, price: i.price })),
-        total: totalNumber,
-        contactEmail: 'admin@skinfromnorth.com',
-      })
-
-      if (typeof c?.email === 'string' && c.email.trim()) {
-        await sendEmail({
-          to: c.email.trim(),
-          subject: 'Order Confirmation - Skin From North',
-          html,
-        })
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('Order email failed:', e instanceof Error ? e.message : e)
-    }
+    // Respond immediately — emails run in the background so checkout feels fast.
+    void sendOrderEmails({
+      customer: c as Record<string, unknown>,
+      orderRef,
+      orderItems,
+      total: priced.total,
+      payment,
+    })
 
     return res.status(201).json({
       ok: true,
-      order: created,
+      orderRef,
+      order: { total: priced.total },
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to create order'
@@ -110,4 +161,3 @@ export async function updateOrderStatus(req: Request, res: Response) {
     return res.status(500).json({ ok: false, message })
   }
 }
-

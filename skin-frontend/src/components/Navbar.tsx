@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext'
 import { useProductSearch } from '../context/SearchContext'
 import { products } from '../data/product'
 import { Input } from './ui/Input'
+import { getWhatsAppUrl } from '../lib/whatsapp'
 
 type NavItem = { label: string; href: string }
 
@@ -16,11 +17,7 @@ export function Navbar({
   sticky?: boolean
   className?: string
 }) {
-  // Keep WhatsApp contact details consistent across the site.
-  const phone = '923184263597'
-  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
-    'Hi! I need help choosing the right skincare product.',
-  )}`
+  const whatsappUrl = getWhatsAppUrl()
 
   const navItems: NavItem[] = useMemo(
     () => [
@@ -63,6 +60,18 @@ export function Navbar({
     named?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  const scrollToHashWhenReady = (hash: string, attempt = 0) => {
+    const id = hash.replace(/^#/, '')
+    const el = id ? document.getElementById(id) : null
+    if (el) {
+      scrollToHash(hash)
+      return
+    }
+    if (attempt < 12) {
+      window.setTimeout(() => scrollToHashWhenReady(hash, attempt + 1), 50)
+    }
+  }
+
   const onNavItemClick = async (href: string) => {
     if (!isHashHref(href)) return
 
@@ -72,15 +81,14 @@ export function Navbar({
 
     // If we aren't on Home, go there first, then scroll.
     if (location.pathname !== '/') {
-      navigate('/' + hash)
-      // Wait for next paint so Home sections are mounted.
-      requestAnimationFrame(() => scrollToHash(hash))
+      navigate({ pathname: '/', hash })
+      scrollToHashWhenReady(hash)
       return
     }
 
     // Already on Home: update hash + scroll.
-    navigate(hash)
-    requestAnimationFrame(() => scrollToHash(hash))
+    navigate({ pathname: '/', hash })
+    scrollToHashWhenReady(hash)
   }
 
   useEffect(() => {
@@ -129,19 +137,19 @@ export function Navbar({
     <header
       className={[
         // Full-width even though #root is centered & constrained.
-        'w-full overflow-x-clip',
+        'w-full',
         sticky ? 'sticky top-0 z-40' : '',
         className,
       ].join(' ')}
     >
       <div className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_35px_rgba(15,23,42,0.06)]">
-        <div className="mx-auto grid h-[72px] max-w-[1200px] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:gap-5">
+        <div className="mx-auto grid h-[72px] max-w-[1200px] grid-cols-[minmax(0,auto)_minmax(0,1fr)_minmax(0,auto)] items-center gap-2 px-4 sm:gap-3 lg:gap-4">
           {/* Left: Logo */}
-          <Link to="/" className="shrink-0 font-[ui-serif,Georgia,serif] leading-none text-[#0f3d37]">
-            <span className="block text-[15px] font-bold tracking-widest sm:text-xl">
+          <Link to="/" className="min-w-0 shrink-0 font-[ui-serif,Georgia,serif] leading-none text-[#0f3d37]">
+            <span className="block text-[14px] font-bold tracking-widest sm:text-[15px] lg:text-base xl:text-xl">
               Skin From North
             </span>
-            <span className="mt-1 hidden text-[10px] font-semibold tracking-[0.22em] text-slate-600 sm:block">
+            <span className="mt-1 hidden text-[10px] font-semibold tracking-[0.22em] text-slate-600 xl:block">
               Imported Skincare
             </span>
           </Link>
@@ -149,10 +157,9 @@ export function Navbar({
           {/* Center: Nav links (desktop) */}
           <nav
             className={[
-              'hidden min-w-0 items-center justify-center justify-self-center text-[13px] font-medium tracking-wide text-slate-700 lg:flex',
-              // If space is tight (e.g. lg-xl), keep one row and allow horizontal scroll instead of dropping below.
+              'hidden min-w-0 items-center justify-center justify-self-center text-[12px] font-medium tracking-wide text-slate-700 lg:flex xl:text-[13px]',
               'flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-              'gap-4 lg:gap-6 xl:gap-8',
+              'gap-2.5 lg:gap-3 xl:gap-5 2xl:gap-8',
             ].join(' ')}
           >
             {navItems.map((item) => (
@@ -197,11 +204,11 @@ export function Navbar({
           </nav>
 
           {/* Right: icons + whatsapp */}
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3 justify-self-end">
+          <div className="flex min-w-0 shrink-0 items-center gap-1.5 justify-self-end sm:gap-2 lg:gap-2.5">
             {/* Desktop search */}
             <div
               ref={searchWrapRef}
-              className="relative hidden lg:block w-[180px] lg:w-[220px] xl:w-[260px] 2xl:w-[320px]"
+              className="relative hidden min-w-0 lg:block lg:w-[130px] xl:w-[180px] 2xl:w-[240px]"
             >
               <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
               <Input
@@ -331,10 +338,21 @@ export function Navbar({
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="hidden items-center gap-2 rounded-lg bg-[#2f5d3a] px-6 py-3 text-[13px] font-medium tracking-wide text-white transition-all duration-300 hover:bg-[#264d30] hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/30 2xl:flex"
+              aria-label="Order on WhatsApp"
+              title="Order on WhatsApp"
+              className={[
+                'hidden shrink-0 items-center justify-center gap-2 rounded-lg bg-[#2f5d3a] text-white',
+                'transition-all duration-300 hover:bg-[#264d30] hover:shadow-sm',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/30',
+                'lg:inline-flex lg:h-10 lg:w-10',
+                'xl:h-auto xl:w-auto xl:px-3.5 xl:py-2.5',
+                '2xl:px-5 2xl:py-3',
+                'text-[12px] font-medium tracking-wide xl:text-[13px]',
+              ].join(' ')}
             >
-              <FaWhatsapp className="h-4 w-4" />
-              Order on WhatsApp
+              <FaWhatsapp className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="hidden whitespace-nowrap xl:inline 2xl:hidden">WhatsApp</span>
+              <span className="hidden whitespace-nowrap 2xl:inline">Order on WhatsApp</span>
             </a>
 
             {/* Mobile hamburger */}

@@ -1,11 +1,8 @@
 import { FaWhatsapp } from 'react-icons/fa'
+import { getWhatsAppUrl } from '../../lib/whatsapp'
 
 export default function CTA() {
-  // Replace with your real WhatsApp number in international format (no + or spaces)
-  const phone = '923184263597'
-  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
-    'Hi! I need help choosing the right skincare product.',
-  )}`
+  const whatsappUrl = getWhatsAppUrl()
 
   return (
     <section id="contact" className="w-full bg-[#f9f7f4]">

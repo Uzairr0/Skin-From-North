@@ -27,6 +27,7 @@ type Order = {
   customer: OrderCustomer
   items: OrderItem[]
   total: number
+  paymentMethod?: 'cod' | 'card'
   status?: OrderStatus
   createdAt: string
 }
@@ -173,12 +174,24 @@ export default function AdminOrders() {
             </p>
           </div>
 
-          <div className="text-sm text-slate-600">
-            {isLoading ? 'Loading…' : (
-              <>
-                <span className="font-semibold text-slate-900">{orders.length}</span> orders
-              </>
-            )}
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY)
+                navigate('/admin/login')
+              }}
+              className="text-sm font-medium text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline"
+            >
+              Log out
+            </button>
+            <div className="text-sm text-slate-600">
+              {isLoading ? 'Loading…' : (
+                <>
+                  <span className="font-semibold text-slate-900">{orders.length}</span> orders
+                </>
+              )}
+            </div>
           </div>
         </div>
 

@@ -10,6 +10,8 @@ export const env = {
   adminEmail: process.env.ADMIN_EMAIL ?? 'admin@skinfromnorth.com',
   adminPassword: process.env.ADMIN_PASSWORD ?? 'admin123',
   adminToken: process.env.ADMIN_TOKEN ?? 'admin123',
+  adminNotifyEmail:
+    process.env.ADMIN_NOTIFY_EMAIL ?? process.env.ADMIN_EMAIL ?? 'help@skinfromnorth.com',
   emailUser: process.env.EMAIL_USER ?? '',
   emailPass: process.env.EMAIL_PASS ?? '',
 }

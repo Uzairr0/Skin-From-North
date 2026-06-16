@@ -1,7 +1,7 @@
 import Hero from '../components/Home/Hero'
 import BrandsSection from '../components/Home/brand'
 import BestSellers from '../components/Home/BestSellers'
-import SkinTypes from '../components/Home/SkinTypes'
+import SkinTypeFinder from '../components/Home/SkinTypeFinder'
 import WhyChooseUs from '../components/Home/WhyChooseUs'
 import Testimonials from '../components/Home/Testimonials'
 import HowItWorks from '../components/Home/HowItWorks'
@@ -17,8 +17,8 @@ export default function Home() {
       />
       <Hero />
       <BrandsSection />
+      <SkinTypeFinder />
       <BestSellers />
-      <SkinTypes />
       <WhyChooseUs />
       <Testimonials />
       <HowItWorks />

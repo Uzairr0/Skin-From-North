@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useMemo } from 'react'
 import { useCart } from '../context/CartContext'
 import Seo from '../components/Seo'
+import { getWhatsAppUrl } from '../lib/whatsapp'
 
 function formatPricePKR(value: number) {
   try {
@@ -16,7 +17,7 @@ function formatPricePKR(value: number) {
 }
 
 export default function Cart() {
-  const { items, removeFromCart, clearCart } = useCart()
+  const { items, removeFromCart, updateQuantity, clearCart } = useCart()
 
   const total = useMemo(
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -113,8 +114,26 @@ export default function Cart() {
                         </div>
 
                         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                          <div className="text-sm text-slate-600">
-                            Qty: <span className="font-semibold text-slate-900">{item.quantity}</span>
+                          <div className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white">
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="grid h-9 w-9 place-items-center text-slate-700 transition-colors hover:bg-slate-50"
+                              aria-label="Decrease quantity"
+                            >
+                              −
+                            </button>
+                            <div className="min-w-[40px] text-center text-sm font-semibold text-slate-900">
+                              {item.quantity}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="grid h-9 w-9 place-items-center text-slate-700 transition-colors hover:bg-slate-50"
+                              aria-label="Increase quantity"
+                            >
+                              +
+                            </button>
                           </div>
                           <div className="text-sm font-semibold text-slate-900">
                             {formatPricePKR(item.price * item.quantity)}
@@ -139,7 +158,7 @@ export default function Cart() {
                   </div>
                   <div className="flex items-center justify-between text-sm text-slate-700">
                     <span>Shipping</span>
-                    <span className="font-semibold text-slate-900">Calculated at checkout</span>
+                    <span className="font-semibold text-slate-900">Free</span>
                   </div>
                   <div className="h-px w-full bg-slate-200" />
                   <div className="flex items-center justify-between text-sm">
@@ -156,7 +175,16 @@ export default function Cart() {
                 </Link>
 
                 <div className="mt-3 text-center text-xs text-slate-600">
-                  Prefer WhatsApp? You can place your order there.
+                  Prefer WhatsApp?{' '}
+                  <a
+                    href={getWhatsAppUrl()}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-[#2f5d3a] underline-offset-2 hover:underline"
+                  >
+                    Place your order there
+                  </a>
+                  .
                 </div>
               </div>
             </aside>

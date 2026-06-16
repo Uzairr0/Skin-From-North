@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext'
 import { useProductSearch } from '../context/SearchContext'
 import Seo from '../components/Seo'
 import { Button } from '../components/ui/Button'
+import ProductUsageGuide from '../components/ProductUsageGuide'
 
 function formatPricePKR(value: number) {
   try {
@@ -156,8 +157,8 @@ export default function ProductDetail() {
             </div>
 
             <p className="mt-5 max-w-prose text-sm leading-relaxed text-slate-600 sm:text-base">
-              A gentle, daily essential crafted to support your skin barrier. Lightweight feel,
-              non-greasy finish, and a routine-friendly formula that pairs well with actives.
+              {product.benefit.charAt(0).toUpperCase() + product.benefit.slice(1)}.
+              Original {product.brand} — imported and delivered across Pakistan.
             </p>
 
             {/* Quantity + Add to cart */}
@@ -219,6 +220,8 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+
+        <ProductUsageGuide guide={product.usage} />
       </div>
     </section>
   )

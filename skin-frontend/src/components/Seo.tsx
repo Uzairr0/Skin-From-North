@@ -11,7 +11,7 @@ export default function Seo({ title, description }: SeoProps) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME
   const desc =
     description ??
-    'Imported skincare in Pakistan — authentic products from CeraVe, Cetaphil, and The Ordinary.'
+    'Imported skincare in Pakistan — The Ordinary available now. Authentic products, COD delivery nationwide.'
 
   return (
     <Helmet>

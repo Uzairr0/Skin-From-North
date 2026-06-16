@@ -15,6 +15,7 @@ type CartContextValue = {
   items: CartItem[]
   addToCart: (product: AddToCartProduct, quantity?: number) => void
   removeFromCart: (id: number) => void
+  updateQuantity: (id: number, quantity: number) => void
   clearCart: () => void
 }
 
@@ -60,12 +61,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (removed) toast.success(`${removed.name} removed from cart`, { duration: 2000 })
   }
 
+  const updateQuantity: CartContextValue['updateQuantity'] = (id, quantity) => {
+    const qty = Math.max(1, Math.min(20, Math.floor(quantity)))
+    setItems((prev) =>
+      prev.map((x) => (x.id === id ? { ...x, quantity: qty } : x)),
+    )
+  }
+
   const clearCart: CartContextValue['clearCart'] = () => {
     setItems([])
   }
 
   const value = useMemo<CartContextValue>(
-    () => ({ items, addToCart, removeFromCart, clearCart }),
+    () => ({ items, addToCart, removeFromCart, updateQuantity, clearCart }),
     [items],
   )
 

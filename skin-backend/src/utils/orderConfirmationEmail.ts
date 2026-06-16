@@ -1,4 +1,4 @@
-function escapeHtml(input: string) {
+export function escapeHtml(input: string) {
   return input
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
@@ -9,6 +9,7 @@ function escapeHtml(input: string) {
 
 export function orderConfirmationEmail(opts: {
   customerName: string
+  orderRef?: string
   items: Array<{ name: string; quantity: number; price: number }>
   total: number
   contactEmail?: string
@@ -85,7 +86,7 @@ export function orderConfirmationEmail(opts: {
                     Thank you for your order
                   </h1>
                   <p style="margin:0 0 14px;color:${muted};font-size:14px;line-height:1.6;">
-                    Hi <b style="color:${text};">${safeName}</b>, we’ve received your order. We will contact you soon.
+                    Hi <b style="color:${text};">${safeName}</b>, we’ve received your order${opts.orderRef ? ` <b style="color:${text};">(${escapeHtml(opts.orderRef)})</b>` : ''}. We will contact you soon to confirm delivery.
                   </p>
                 </div>
 

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import ProductCard from '../components/ProductCard'
 import { products } from '../data/product'
+import { brands } from '../data/brands'
 import { useProductSearch } from '../context/SearchContext'
 import shopHero from '../assets/shop-hero.png'
 import Seo from '../components/Seo'
@@ -11,7 +12,7 @@ export default function Shop() {
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'name-asc'>('featured')
   const { query } = useProductSearch()
 
-  const brandOptions = useMemo(() => ['CeraVe', 'Cetaphil', 'The Ordinary'], [])
+  const brandOptions = useMemo(() => brands, [])
   const skinTypeOptions = useMemo(() => ['All Skin Types', 'Oily', 'Dry', 'Acne', 'Sensitive'], [])
 
   const filtered = useMemo(() => {
@@ -84,14 +85,15 @@ export default function Shop() {
                 Shop
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base">
-                Discover premium imported skincare curated for every day routine - clean, effective, and authentic.
+                The Ordinary in stock now — more brands arriving soon. Authentic imported skincare
+                for your daily routine.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 <span className="rounded-full bg-[#2f5d3a]/10 px-3 py-1 text-xs font-semibold text-[#2f5d3a] ring-1 ring-[#2f5d3a]/15">
-                  Dermatologist-loved
+                  The Ordinary — in stock
                 </span>
-                <span className="rounded-full bg-slate-900/5 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200/70">
-                  Original brands
+                <span className="rounded-full bg-slate-900/5 px-3 py-1 text-xs font-semibold text-slate-500 ring-1 ring-slate-200/70">
+                  CeraVe &amp; Cetaphil — soon
                 </span>
               </div>
             </div>
@@ -124,16 +126,34 @@ export default function Shop() {
                   <div className="text-xs font-semibold tracking-wide text-slate-900">Brand</div>
                   <div className="mt-3 space-y-2.5">
                     {brandOptions.map((b) => {
-                      const checked = selectedBrand === b
+                      const checked = selectedBrand === b.id
+                      const isComingSoon = b.status === 'coming_soon'
                       return (
-                        <label key={b} className="flex cursor-pointer items-center gap-3">
+                        <label
+                          key={b.id}
+                          className={[
+                            'flex items-center gap-3',
+                            isComingSoon ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
+                          ].join(' ')}
+                        >
                           <input
                             type="checkbox"
                             checked={checked}
-                            onChange={() => setSelectedBrand((prev) => (prev === b ? '' : b))}
-                            className="h-4 w-4 rounded border-slate-300 text-[#2f5d3a] focus:ring-[#2f5d3a]/25"
+                            disabled={isComingSoon}
+                            onChange={() =>
+                              !isComingSoon &&
+                              setSelectedBrand((prev) => (prev === b.id ? '' : b.id))
+                            }
+                            className="h-4 w-4 rounded border-slate-300 text-[#2f5d3a] focus:ring-[#2f5d3a]/25 disabled:cursor-not-allowed"
                           />
-                          <span className="text-sm text-slate-700">{b}</span>
+                          <span className="text-sm text-slate-700">
+                            {b.name}
+                            {isComingSoon ? (
+                              <span className="ml-1.5 text-xs font-medium text-slate-400">
+                                (Coming soon)
+                              </span>
+                            ) : null}
+                          </span>
                         </label>
                       )
                     })}

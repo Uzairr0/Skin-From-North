@@ -9,6 +9,7 @@ export type OrderCustomer = {
 }
 
 export type OrderItem = {
+  productId?: number
   name: string
   price: number
   quantity: number
@@ -19,6 +20,7 @@ export type OrderDoc = {
   customer: OrderCustomer
   items: OrderItem[]
   total: number
+  paymentMethod: 'cod' | 'card'
   status: 'Pending' | 'Confirmed' | 'Delivered'
   createdAt: Date
   updatedAt: Date
@@ -37,6 +39,7 @@ const customerSchema = new Schema<OrderCustomer>(
 
 const itemSchema = new Schema<OrderItem>(
   {
+    productId: { type: Number, required: false, min: 1 },
     name: { type: String, required: true, trim: true },
     price: { type: Number, required: true, min: 0 },
     quantity: { type: Number, required: true, min: 1 },
@@ -50,6 +53,12 @@ const orderSchema = new Schema<OrderDoc>(
     customer: { type: customerSchema, required: true },
     items: { type: [itemSchema], required: true },
     total: { type: Number, required: true, min: 0 },
+    paymentMethod: {
+      type: String,
+      required: true,
+      enum: ['cod', 'card'],
+      default: 'cod',
+    },
     status: {
       type: String,
       required: true,

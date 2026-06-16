@@ -1,5 +1,6 @@
 import { FaFacebookF, FaInstagram, FaTiktok } from 'react-icons/fa'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { getWhatsAppUrl } from '../lib/whatsapp'
 
 export default function Footer() {
   const shopLinks = [
@@ -168,7 +169,7 @@ export default function Footer() {
               <li>
                 <span className="text-gray-500">WhatsApp:</span>{' '}
                 <a
-                  href="https://wa.me/923184263597"
+                  href={getWhatsAppUrl()}
                   target="_blank"
                   rel="noreferrer"
                   className="transition-all duration-300 hover:text-white"

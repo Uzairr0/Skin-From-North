@@ -49,6 +49,10 @@ async function main() {
   app.listen(env.port, () => {
     // eslint-disable-next-line no-console
     console.log(`API listening on http://localhost:${env.port}`)
+    if (env.nodeEnv === 'production' && env.adminToken === 'admin123') {
+      // eslint-disable-next-line no-console
+      console.warn('WARNING: Change ADMIN_TOKEN and ADMIN_PASSWORD before going live.')
+    }
   })
 }
 
