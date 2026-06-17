@@ -143,72 +143,84 @@ export function Navbar({
       ].join(' ')}
     >
       <div className="bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80 shadow-[0_1px_0_rgba(15,23,42,0.06),0_10px_35px_rgba(15,23,42,0.06)]">
-        <div className="mx-auto grid h-[72px] max-w-[1200px] grid-cols-[minmax(0,auto)_minmax(0,1fr)_minmax(0,auto)] items-center gap-2 px-4 sm:gap-3 lg:gap-4">
-          {/* Left: Logo */}
-          <Link to="/" className="min-w-0 shrink-0 font-[ui-serif,Georgia,serif] leading-none text-[#0f3d37]">
-            <span className="block text-[14px] font-bold tracking-widest sm:text-[15px] lg:text-base xl:text-xl">
+        <div className="mx-auto flex h-[72px] max-w-[1200px] items-center gap-2 px-4 sm:gap-3">
+          {/* Logo — fixed width, never overlapped */}
+          <Link
+            to="/"
+            className="relative z-20 shrink-0 font-[ui-serif,Georgia,serif] leading-none text-[#0f3d37]"
+          >
+            <span className="block max-w-[9.5rem] truncate text-[14px] font-bold tracking-widest sm:max-w-none sm:text-[15px] lg:text-base xl:text-lg 2xl:text-xl">
               Skin From North
             </span>
-            <span className="mt-1 hidden text-[10px] font-semibold tracking-[0.22em] text-slate-600 xl:block">
+            <span className="mt-1 hidden text-[10px] font-semibold tracking-[0.22em] text-slate-600 2xl:block">
               Imported Skincare
             </span>
           </Link>
 
-          {/* Center: Nav links (desktop) */}
+          {/* Desktop nav — xl+ only; scrolls inside its lane if space is tight */}
           <nav
             className={[
-              'hidden min-w-0 items-center justify-center justify-self-center text-[12px] font-medium tracking-wide text-slate-700 lg:flex xl:text-[13px]',
-              'flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-              'gap-2.5 lg:gap-3 xl:gap-5 2xl:gap-8',
+              'relative z-10 hidden min-w-0 flex-1 xl:flex xl:justify-center',
             ].join(' ')}
+            aria-label="Main navigation"
           >
-            {navItems.map((item) => (
-              <NavLink
-                key={item.label}
-                to={item.href}
-                onClick={(e) => {
-                  if (!isHashHref(item.href)) return
-                  e.preventDefault()
-                  void onNavItemClick(item.href)
-                }}
-                className={({ isActive }) =>
-                  [
-                    'relative whitespace-nowrap py-2 transition-all duration-300',
-                    isActive ? 'text-slate-900' : 'hover:text-slate-900',
-                  ].join(' ')
-                }
-                // NavLink "active" logic doesn't work for '/#...' reliably; we handle underline manually.
-                end={item.href === '/'}
-              >
-                {({ isActive }) => {
-                  const active =
-                    isActive ||
-                    (isHashHref(item.href) &&
-                      location.pathname === '/' &&
-                      location.hash === `#${item.href.split('#')[1] ?? ''}`)
-                  return (
-                    <>
-                      {item.label}
-                      <span
-                        className={[
-                          'pointer-events-none absolute inset-x-0 -bottom-1 mx-auto h-[2px] w-6 rounded-full bg-[#0f3d37] transition-opacity duration-200',
-                          active ? 'opacity-100' : 'opacity-0',
-                        ].join(' ')}
-                        aria-hidden="true"
-                      />
-                    </>
-                  )
-                }}
-              </NavLink>
-            ))}
+            <div
+              className={[
+                'flex max-w-full items-center justify-center',
+                'gap-3 2xl:gap-6',
+                'overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+              ].join(' ')}
+            >
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.label}
+                  to={item.href}
+                  onClick={(e) => {
+                    if (!isHashHref(item.href)) return
+                    e.preventDefault()
+                    void onNavItemClick(item.href)
+                  }}
+                  className={({ isActive }) =>
+                    [
+                      'relative shrink-0 whitespace-nowrap px-0.5 py-2 text-[12px] font-medium tracking-wide transition-all duration-300 2xl:text-[13px]',
+                      isActive ? 'text-slate-900' : 'text-slate-700 hover:text-slate-900',
+                    ].join(' ')
+                  }
+                  end={item.href === '/'}
+                >
+                  {({ isActive }) => {
+                    const active =
+                      isActive ||
+                      (isHashHref(item.href) &&
+                        location.pathname === '/' &&
+                        location.hash === `#${item.href.split('#')[1] ?? ''}`)
+                    return (
+                      <>
+                        <span className="2xl:hidden">
+                          {item.label === 'About Us' ? 'About' : item.label}
+                        </span>
+                        <span className="hidden 2xl:inline">{item.label}</span>
+                        <span
+                          className={[
+                            'pointer-events-none absolute inset-x-0 -bottom-1 mx-auto h-[2px] w-6 rounded-full bg-[#0f3d37] transition-opacity duration-200',
+                            active ? 'opacity-100' : 'opacity-0',
+                          ].join(' ')}
+                          aria-hidden="true"
+                        />
+                      </>
+                    )
+                  }}
+                </NavLink>
+              ))}
+            </div>
           </nav>
 
-          {/* Right: icons + whatsapp */}
-          <div className="flex min-w-0 shrink-0 items-center gap-1.5 justify-self-end sm:gap-2 lg:gap-2.5">
+          {/* Right actions — fixed cluster, never overlapped */}
+          <div className="relative z-20 ml-auto flex shrink-0 items-center gap-1.5 bg-inherit sm:gap-2">
             {/* Desktop search */}
             <div
               ref={searchWrapRef}
-              className="relative hidden min-w-0 lg:block lg:w-[130px] xl:w-[180px] 2xl:w-[240px]"
+              className="relative hidden min-w-0 xl:block xl:w-[140px] 2xl:w-[200px]"
             >
               <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
               <Input
@@ -309,7 +321,7 @@ export function Navbar({
 
             <button
               type="button"
-              className="grid h-9 w-9 place-items-center rounded-lg text-slate-700 transition-all duration-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/25 md:hidden sm:h-10 sm:w-10"
+              className="grid h-9 w-9 place-items-center rounded-lg text-slate-700 transition-all duration-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/25 sm:h-10 sm:w-10 xl:hidden"
               aria-label="Search"
               aria-expanded={mobileSearchOpen}
               onClick={() => {
@@ -341,24 +353,23 @@ export function Navbar({
               aria-label="Order on WhatsApp"
               title="Order on WhatsApp"
               className={[
-                'hidden shrink-0 items-center justify-center gap-2 rounded-lg bg-[#2f5d3a] text-white',
+                'inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#2f5d3a] text-white',
                 'transition-all duration-300 hover:bg-[#264d30] hover:shadow-sm',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/30',
-                'lg:inline-flex lg:h-10 lg:w-10',
-                'xl:h-auto xl:w-auto xl:px-3.5 xl:py-2.5',
-                '2xl:px-5 2xl:py-3',
-                'text-[12px] font-medium tracking-wide xl:text-[13px]',
+                'h-9 w-9 sm:h-10 sm:w-10',
+                'lg:h-10 lg:w-10',
+                '2xl:h-auto 2xl:w-auto 2xl:px-5 2xl:py-3',
+                'text-[12px] font-medium tracking-wide 2xl:text-[13px]',
               ].join(' ')}
             >
               <FaWhatsapp className="h-4 w-4 shrink-0" aria-hidden="true" />
-              <span className="hidden whitespace-nowrap xl:inline 2xl:hidden">WhatsApp</span>
               <span className="hidden whitespace-nowrap 2xl:inline">Order on WhatsApp</span>
             </a>
 
             {/* Mobile hamburger */}
             <button
               type="button"
-              className="grid h-9 w-9 place-items-center rounded-lg text-slate-800 transition-all duration-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/25 lg:hidden sm:h-10 sm:w-10"
+              className="grid h-9 w-9 place-items-center rounded-lg text-slate-800 transition-all duration-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/25 xl:hidden sm:h-10 sm:w-10"
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((v) => !v)}
@@ -374,7 +385,7 @@ export function Navbar({
 
         {/* Mobile search bar (toggle via icon) */}
         {mobileSearchOpen ? (
-          <div ref={searchWrapRef} className="border-t border-slate-100 bg-white lg:hidden">
+          <div ref={searchWrapRef} className="border-t border-slate-100 bg-white xl:hidden">
             <div className="mx-auto max-w-[1200px] px-4 py-3">
               <div ref={mobileSearchInnerRef} className="relative">
                 <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
@@ -496,7 +507,7 @@ export function Navbar({
 
         {/* Mobile dropdown */}
         {mobileOpen ? (
-          <div className="border-t border-slate-100 bg-white lg:hidden">
+          <div className="border-t border-slate-100 bg-white xl:hidden">
             <div className="mx-auto max-w-[1200px] px-4 py-3">
               <nav className="flex flex-col gap-1">
                 {navItems.map((item) => (

@@ -1,14 +1,36 @@
 import { useMemo, useState } from 'react'
 import ProductCard from '../components/ProductCard'
+import ProductPlaceholderCard from '../components/ProductPlaceholderCard'
 import { products } from '../data/product'
 import { brands } from '../data/brands'
 import { useProductSearch } from '../context/SearchContext'
 import shopHero from '../assets/shop-hero.png'
 import Seo from '../components/Seo'
 
+const MIN_GRID_SLOTS = 6
+
+function formatPricePKR(value: number) {
+  try {
+    return new Intl.NumberFormat('en-PK', {
+      style: 'currency',
+      currency: 'PKR',
+      maximumFractionDigits: 0,
+    }).format(value)
+  } catch {
+    return `Rs ${value.toLocaleString()}`
+  }
+}
+
 export default function Shop() {
+  const catalogPriceBounds = useMemo(() => {
+    const prices = products.map((p) => p.price)
+    return { min: Math.min(...prices), max: Math.max(...prices) }
+  }, [])
+
   const [selectedBrand, setSelectedBrand] = useState<string>('')
   const [selectedSkinType, setSelectedSkinType] = useState<string>('All Skin Types')
+  const [priceMin, setPriceMin] = useState(catalogPriceBounds.min)
+  const [priceMax, setPriceMax] = useState(catalogPriceBounds.max)
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'name-asc'>('featured')
   const { query } = useProductSearch()
 
@@ -26,9 +48,10 @@ export default function Shop() {
           ? p.skinType === 'All Skin Types'
           : selectedSkinType === 'Acne'
             ? p.skinType === 'Acne'
-          : p.skinType === selectedSkinType || p.skinType === 'All Skin Types'
+            : p.skinType === selectedSkinType || p.skinType === 'All Skin Types'
       const nameOk = !q || p.name.toLowerCase().includes(q)
-      return brandOk && skinOk && nameOk
+      const priceOk = p.price >= priceMin && p.price <= priceMax
+      return brandOk && skinOk && nameOk && priceOk
     })
 
     switch (sortBy) {
@@ -46,12 +69,29 @@ export default function Shop() {
     }
 
     return list
-  }, [selectedBrand, selectedSkinType, sortBy, query])
+  }, [selectedBrand, selectedSkinType, sortBy, query, priceMin, priceMax])
+
+  const placeholderCount = useMemo(() => {
+    if (filtered.length === 0) return 0
+    return Math.max(0, MIN_GRID_SLOTS - filtered.length)
+  }, [filtered.length])
 
   const clearAll = () => {
     setSelectedBrand('')
     setSelectedSkinType('All Skin Types')
+    setPriceMin(catalogPriceBounds.min)
+    setPriceMax(catalogPriceBounds.max)
     setSortBy('featured')
+  }
+
+  const handlePriceMinChange = (value: number) => {
+    const next = Math.max(catalogPriceBounds.min, Math.min(value, priceMax))
+    setPriceMin(next)
+  }
+
+  const handlePriceMaxChange = (value: number) => {
+    const next = Math.min(catalogPriceBounds.max, Math.max(value, priceMin))
+    setPriceMax(next)
   }
 
   return (
@@ -60,6 +100,7 @@ export default function Shop() {
         title="Shop"
         description="Browse authentic imported skincare products. Filter by brand and skin type, or search to find your routine essentials."
       />
+
       {/* Page header */}
       <header className="relative w-full overflow-hidden bg-[#f9fafb]">
         <div className="absolute inset-0">
@@ -180,6 +221,72 @@ export default function Shop() {
                     })}
                   </div>
                 </div>
+
+                {/* Price range */}
+                <div>
+                  <div className="text-xs font-semibold tracking-wide text-slate-900">
+                    Price range
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    {formatPricePKR(priceMin)} – {formatPricePKR(priceMax)}
+                  </p>
+
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <label htmlFor="priceMin" className="text-[11px] font-medium text-slate-500">
+                        Min
+                      </label>
+                      <input
+                        id="priceMin"
+                        type="range"
+                        min={catalogPriceBounds.min}
+                        max={catalogPriceBounds.max}
+                        step={100}
+                        value={priceMin}
+                        onChange={(e) => handlePriceMinChange(Number(e.target.value))}
+                        className="mt-1 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#2f5d3a]"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="priceMax" className="text-[11px] font-medium text-slate-500">
+                        Max
+                      </label>
+                      <input
+                        id="priceMax"
+                        type="range"
+                        min={catalogPriceBounds.min}
+                        max={catalogPriceBounds.max}
+                        step={100}
+                        value={priceMax}
+                        onChange={(e) => handlePriceMaxChange(Number(e.target.value))}
+                        className="mt-1 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#2f5d3a]"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={catalogPriceBounds.min}
+                        max={priceMax}
+                        step={100}
+                        value={priceMin}
+                        onChange={(e) => handlePriceMinChange(Number(e.target.value))}
+                        className="h-9 w-full rounded-lg border border-slate-200 px-2.5 text-sm text-slate-900 focus:border-[#2f5d3a]/30 focus:outline-none focus:ring-2 focus:ring-[#2f5d3a]/15"
+                        aria-label="Minimum price"
+                      />
+                      <span className="text-slate-400">–</span>
+                      <input
+                        type="number"
+                        min={priceMin}
+                        max={catalogPriceBounds.max}
+                        step={100}
+                        value={priceMax}
+                        onChange={(e) => handlePriceMaxChange(Number(e.target.value))}
+                        className="h-9 w-full rounded-lg border border-slate-200 px-2.5 text-sm text-slate-900 focus:border-[#2f5d3a]/30 focus:outline-none focus:ring-2 focus:ring-[#2f5d3a]/15"
+                        aria-label="Maximum price"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </aside>
@@ -189,6 +296,9 @@ export default function Shop() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-slate-600">
                 <span className="font-semibold text-slate-900">{filtered.length}</span> items
+                {placeholderCount > 0 ? (
+                  <span className="text-slate-400"> · {placeholderCount} coming soon</span>
+                ) : null}
               </div>
 
               <div className="flex items-center justify-end gap-3">
@@ -209,9 +319,12 @@ export default function Shop() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
               {filtered.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p.id} product={p} showAddToCart />
+              ))}
+              {Array.from({ length: placeholderCount }).map((_, i) => (
+                <ProductPlaceholderCard key={`placeholder-${i}`} index={i} />
               ))}
             </div>
 
@@ -236,4 +349,3 @@ export default function Shop() {
     </section>
   )
 }
-

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiEye } from 'react-icons/fi'
+import { FiEye, FiShoppingBag } from 'react-icons/fi'
 import type { Product } from '../data/product'
 import { skinTypeLabel } from '../data/product'
 import { useCart } from '../context/CartContext'
-import { Button } from './ui/Button'
+import StarRating from './StarRating'
 
 function formatPricePKR(value: number) {
   try {
@@ -24,6 +24,13 @@ export type ProductCardProps = {
   showAddToCart?: boolean
 }
 
+const hoverActionClass = [
+  'transition-all duration-300 ease-out',
+  'opacity-100 translate-y-0',
+  'sm:opacity-0 sm:translate-y-3 sm:pointer-events-none',
+  'sm:group-hover:opacity-100 sm:group-hover:translate-y-0 sm:group-hover:pointer-events-auto',
+].join(' ')
+
 export default function ProductCard({
   product,
   className,
@@ -33,7 +40,9 @@ export default function ProductCard({
   const [isAdding, setIsAdding] = useState(false)
   const productUrl = `/product/${product.id}`
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (isAdding) return
     setIsAdding(true)
     addToCart({
@@ -80,23 +89,43 @@ export default function ProductCard({
           aria-hidden="true"
         />
 
-        <Link
-          to={productUrl}
+        <div
           className={[
-            'absolute inset-x-3 bottom-3 z-10',
-            'inline-flex items-center justify-center gap-1.5',
-            'rounded-lg bg-white/95 px-4 py-2.5 text-xs font-semibold text-slate-900',
-            'shadow-md ring-1 ring-slate-200/80 backdrop-blur-sm',
-            'transition-all duration-300',
-            'opacity-100 translate-y-0',
-            'sm:opacity-0 sm:translate-y-2 sm:pointer-events-none',
-            'sm:group-hover:opacity-100 sm:group-hover:translate-y-0 sm:group-hover:pointer-events-auto',
-            'hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/30',
+            'absolute inset-x-3 bottom-3 z-10 flex flex-col gap-2',
+            hoverActionClass,
           ].join(' ')}
         >
-          <FiEye className="h-3.5 w-3.5" aria-hidden="true" />
-          Quick View
-        </Link>
+          {showAddToCart ? (
+            <button
+              type="button"
+              disabled={isAdding}
+              onClick={handleAddToCart}
+              className={[
+                'inline-flex w-full items-center justify-center gap-1.5',
+                'rounded-lg bg-[#2f5d3a] px-4 py-2.5 text-xs font-semibold text-white',
+                'shadow-md transition-colors duration-200',
+                'hover:bg-[#264d30] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/40',
+                isAdding ? 'opacity-80' : '',
+              ].join(' ')}
+            >
+              <FiShoppingBag className="h-3.5 w-3.5" aria-hidden="true" />
+              {isAdding ? 'Adding…' : 'Add to Cart'}
+            </button>
+          ) : null}
+
+          <Link
+            to={productUrl}
+            className={[
+              'inline-flex w-full items-center justify-center gap-1.5',
+              'rounded-lg bg-white/95 px-4 py-2.5 text-xs font-semibold text-slate-900',
+              'shadow-md ring-1 ring-slate-200/80 backdrop-blur-sm',
+              'hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f5d3a]/30',
+            ].join(' ')}
+          >
+            <FiEye className="h-3.5 w-3.5" aria-hidden="true" />
+            Quick View
+          </Link>
+        </div>
 
         <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium text-slate-700 ring-1 ring-slate-200/70 backdrop-blur">
           {product.brand}
@@ -111,7 +140,9 @@ export default function ProductCard({
           {product.name}
         </Link>
 
-        <p className="mt-1 line-clamp-1 text-xs leading-relaxed text-slate-500">
+        <StarRating rating={product.rating} className="mt-1.5" />
+
+        <p className="mt-1.5 line-clamp-1 text-xs leading-relaxed text-slate-500">
           {product.benefit}
         </p>
 
@@ -123,18 +154,6 @@ export default function ProductCard({
         <div className="mt-3 text-lg font-bold tracking-tight text-[#2f5d3a] sm:text-xl">
           {formatPricePKR(product.price)}
         </div>
-
-        {showAddToCart ? (
-          <Button
-            type="button"
-            className="mt-4 w-full"
-            isLoading={isAdding}
-            loadingText="Adding…"
-            onClick={handleAddToCart}
-          >
-            Add to Cart
-          </Button>
-        ) : null}
       </div>
     </article>
   )
