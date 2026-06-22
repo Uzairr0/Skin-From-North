@@ -11,8 +11,14 @@ async function main() {
     cors(
       env.nodeEnv === 'production'
         ? {
-            // Production: lock to your deployed frontend origin
-            origin: env.clientOrigin,
+            // Production: allow listed frontend origins (comma-separated in CLIENT_ORIGIN)
+            origin: (origin, callback) => {
+              if (!origin || env.clientOrigins.includes(origin)) {
+                callback(null, true)
+                return
+              }
+              callback(new Error(`CORS blocked for origin: ${origin}`))
+            },
             credentials: true,
           }
         : {
