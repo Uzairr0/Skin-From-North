@@ -1,28 +1,11 @@
 import { Link } from 'react-router-dom'
-import { useMemo } from 'react'
 import { useCart } from '../context/CartContext'
 import Seo from '../components/Seo'
 import { getWhatsAppUrl } from '../lib/whatsapp'
-
-function formatPricePKR(value: number) {
-  try {
-    return new Intl.NumberFormat('en-PK', {
-      style: 'currency',
-      currency: 'PKR',
-      maximumFractionDigits: 0,
-    }).format(value)
-  } catch {
-    return `Rs ${value.toLocaleString()}`
-  }
-}
+import { DeliveryInfoBanner, OrderTotalsSummary } from '../components/OrderTotalsSummary'
+import { formatPricePKR } from '../lib/pricing'
 
 export default function Cart() {
-  const { items, removeFromCart, updateQuantity, clearCart } = useCart()
-
-  const total = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [items],
-  )
 
   return (
     <section className="w-full bg-white">
@@ -151,21 +134,11 @@ export default function Cart() {
               <div className="rounded-2xl border border-slate-200 bg-white p-5">
                 <div className="text-sm font-semibold text-slate-900">Order summary</div>
 
-                <div className="mt-5 space-y-3">
-                  <div className="flex items-center justify-between text-sm text-slate-700">
-                    <span>Subtotal</span>
-                    <span className="font-semibold text-slate-900">{formatPricePKR(total)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-slate-700">
-                    <span>Shipping</span>
-                    <span className="font-semibold text-slate-900">Free</span>
-                  </div>
-                  <div className="h-px w-full bg-slate-200" />
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-slate-900">Total</span>
-                    <span className="text-lg font-semibold text-slate-900">{formatPricePKR(total)}</span>
-                  </div>
+                <div className="mt-5">
+                  <OrderTotalsSummary items={items} />
                 </div>
+
+                <DeliveryInfoBanner className="mt-4" />
 
                 <Link
                   to="/checkout"

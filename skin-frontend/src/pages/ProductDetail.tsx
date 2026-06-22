@@ -7,18 +7,7 @@ import { useProductSearch } from '../context/SearchContext'
 import Seo from '../components/Seo'
 import { Button } from '../components/ui/Button'
 import ProductUsageGuide from '../components/ProductUsageGuide'
-
-function formatPricePKR(value: number) {
-  try {
-    return new Intl.NumberFormat('en-PK', {
-      style: 'currency',
-      currency: 'PKR',
-      maximumFractionDigits: 0,
-    }).format(value)
-  } catch {
-    return `Rs ${value.toLocaleString()}`
-  }
-}
+import { DELIVERY_NOTE, formatPricePKR } from '../lib/pricing'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -147,10 +136,14 @@ export default function ProductDetail() {
               {product.name}
             </h1>
 
-            <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="mt-4">
               <div className="text-2xl font-semibold tracking-tight text-slate-900">
                 {formatPricePKR(product.price)}
               </div>
+              <p className="mt-1.5 text-sm text-slate-600">{DELIVERY_NOTE}</p>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               <span className="rounded-full bg-[#2f5d3a]/10 px-3 py-1 text-xs font-semibold text-[#2f5d3a] ring-1 ring-[#2f5d3a]/15">
                 {product.skinType === 'All Skin Types' ? 'Suitable for all skin types' : `For ${product.skinType} skin`}
               </span>
@@ -158,7 +151,7 @@ export default function ProductDetail() {
 
             <p className="mt-5 max-w-prose text-sm leading-relaxed text-slate-600 sm:text-base">
               {product.benefit.charAt(0).toUpperCase() + product.benefit.slice(1)}.
-              Original {product.brand} — imported and delivered across Pakistan.
+              Original {product.brand} — imported skincare delivered in Lahore.
             </p>
 
             {/* Quantity + Add to cart */}

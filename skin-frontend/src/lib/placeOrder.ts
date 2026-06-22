@@ -16,6 +16,8 @@ export type OrderPayload = {
     image: string
   }>
   paymentMethod: 'cod' | 'card'
+  subtotal: number
+  deliveryFee: number
   total: number
 }
 

@@ -11,6 +11,8 @@ export function orderConfirmationEmail(opts: {
   customerName: string
   orderRef?: string
   items: Array<{ name: string; quantity: number; price: number }>
+  subtotal: number
+  deliveryFee: number
   total: number
   contactEmail?: string
   contactPhone?: string
@@ -115,6 +117,22 @@ export function orderConfirmationEmail(opts: {
                     </table>
 
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:14px;border-collapse:collapse;">
+                      <tr>
+                        <td style="padding-top:12px;border-top:1px solid ${border};color:${muted};font-size:14px;">
+                          Subtotal
+                        </td>
+                        <td style="padding-top:12px;border-top:1px solid ${border};text-align:right;font-size:14px;font-weight:600;color:${text};white-space:nowrap;">
+                          Rs ${opts.subtotal}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top:8px;color:${muted};font-size:14px;">
+                          Delivery
+                        </td>
+                        <td style="padding-top:8px;text-align:right;font-size:14px;font-weight:600;color:${text};white-space:nowrap;">
+                          ${opts.deliveryFee === 0 ? 'Free' : `Rs ${opts.deliveryFee}`}
+                        </td>
+                      </tr>
                       <tr>
                         <td style="padding-top:12px;border-top:1px solid ${border};color:${muted};font-size:14px;">
                           Total

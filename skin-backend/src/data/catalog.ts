@@ -6,10 +6,10 @@ export type CatalogProduct = {
 
 /** Authoritative product prices — keep in sync with skin-frontend/src/data/product.ts */
 export const PRODUCT_CATALOG: Record<number, CatalogProduct> = {
-  1: { id: 1, name: 'Niacinamide 10% Zinc', price: 2200 },
-  2: { id: 2, name: 'Salicylic Acid 2%', price: 2900 },
-  3: { id: 3, name: 'Glycolic Acid 7% Toner', price: 3500 },
-  4: { id: 4, name: 'Alpha Arbutin 2% HA', price: 4900 },
+  1: { id: 1, name: 'Niacinamide 10% Zinc', price: 2999 },
+  2: { id: 2, name: 'Salicylic Acid 2%', price: 3699 },
+  3: { id: 3, name: 'Glycolic Acid 7% Toner', price: 4199 },
+  4: { id: 4, name: 'Alpha Arbutin 2% HA', price: 5499 },
 }
 
 export type IncomingOrderItem = {
@@ -30,7 +30,7 @@ export type ValidatedOrderItem = {
 
 export function validateOrderItems(
   items: unknown,
-): { items: ValidatedOrderItem[]; total: number } | { error: string } {
+): { items: ValidatedOrderItem[]; subtotal: number } | { error: string } {
   if (!Array.isArray(items) || items.length === 0) {
     return { error: 'Items are required' }
   }
@@ -63,6 +63,6 @@ export function validateOrderItems(
     })
   }
 
-  const total = validated.reduce((sum, i) => sum + i.price * i.quantity, 0)
-  return { items: validated, total }
+  const subtotal = validated.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  return { items: validated, subtotal }
 }

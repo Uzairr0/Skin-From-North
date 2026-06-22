@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import { validateOrderItems } from '../data/catalog'
+import { calculateDelivery, isLahore, LAHORE_ONLY_MESSAGE } from '../data/delivery'
 import { env } from '../config/env'
 import { OrderModel } from '../models/Order'
 import { sendEmail } from '../utils/sendEmail'
@@ -15,16 +16,20 @@ async function sendOrderEmails(opts: {
   customer: Record<string, unknown>
   orderRef: string
   orderItems: Array<{ name: string; quantity: number; price: number }>
+  subtotal: number
+  deliveryFee: number
   total: number
   payment: 'cod' | 'card'
 }) {
-  const { customer: c, orderRef, orderItems, total, payment } = opts
+  const { customer: c, orderRef, orderItems, subtotal, deliveryFee, total, payment } = opts
 
   try {
     const html = orderConfirmationEmail({
       customerName: String(c?.name ?? 'Customer'),
       orderRef,
       items: orderItems,
+      subtotal,
+      deliveryFee,
       total,
       contactEmail: 'skinfromnorth@gmail.com',
       contactPhone: '+923184263597',
@@ -82,6 +87,15 @@ export async function createOrder(req: Request, res: Response) {
       return res.status(400).json({ ok: false, message: priced.error })
     }
 
+    const customerBody = customer as { city?: unknown }
+    const city = typeof customerBody?.city === 'string' ? customerBody.city.trim() : ''
+    if (!isLahore(city)) {
+      return res.status(400).json({ ok: false, message: LAHORE_ONLY_MESSAGE })
+    }
+
+    const itemCount = priced.items.reduce((sum, i) => sum + i.quantity, 0)
+    const delivery = calculateDelivery(priced.subtotal, itemCount)
+
     const payment =
       paymentMethod === 'card' || paymentMethod === 'cod' ? paymentMethod : 'cod'
 
@@ -96,12 +110,14 @@ export async function createOrder(req: Request, res: Response) {
     const created = await OrderModel.create({
       customer: customer as any,
       items: priced.items,
-      total: priced.total,
+      subtotal: delivery.subtotal,
+      deliveryFee: delivery.deliveryFee,
+      total: delivery.total,
       paymentMethod: payment,
     })
 
     const orderRef = formatOrderRef(String(created._id))
-    const c = created.customer as any
+    const savedCustomer = created.customer as Record<string, unknown>
     const orderItems = priced.items.map((i) => ({
       name: i.name,
       quantity: i.quantity,
@@ -110,17 +126,23 @@ export async function createOrder(req: Request, res: Response) {
 
     // Respond immediately — emails run in the background so checkout feels fast.
     void sendOrderEmails({
-      customer: c as Record<string, unknown>,
+      customer: savedCustomer,
       orderRef,
       orderItems,
-      total: priced.total,
+      subtotal: delivery.subtotal,
+      deliveryFee: delivery.deliveryFee,
+      total: delivery.total,
       payment,
     })
 
     return res.status(201).json({
       ok: true,
       orderRef,
-      order: { total: priced.total },
+      order: {
+        subtotal: delivery.subtotal,
+        deliveryFee: delivery.deliveryFee,
+        total: delivery.total,
+      },
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to create order'

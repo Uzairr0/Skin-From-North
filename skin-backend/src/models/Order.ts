@@ -19,6 +19,8 @@ export type OrderItem = {
 export type OrderDoc = {
   customer: OrderCustomer
   items: OrderItem[]
+  subtotal: number
+  deliveryFee: number
   total: number
   paymentMethod: 'cod' | 'card'
   status: 'Pending' | 'Confirmed' | 'Delivered'
@@ -52,6 +54,8 @@ const orderSchema = new Schema<OrderDoc>(
   {
     customer: { type: customerSchema, required: true },
     items: { type: [itemSchema], required: true },
+    subtotal: { type: Number, required: true, min: 0 },
+    deliveryFee: { type: Number, required: true, min: 0, default: 0 },
     total: { type: Number, required: true, min: 0 },
     paymentMethod: {
       type: String,

@@ -4,19 +4,13 @@ import { useCart } from '../context/CartContext'
 import Seo from '../components/Seo'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
+import {
+  DeliveryInfoBanner,
+  OrderTotalsSummary,
+  useOrderTotals,
+} from '../components/OrderTotalsSummary'
 import type { OrderPayload } from '../lib/placeOrder'
-
-function formatPricePKR(value: number) {
-  try {
-    return new Intl.NumberFormat('en-PK', {
-      style: 'currency',
-      currency: 'PKR',
-      maximumFractionDigits: 0,
-    }).format(value)
-  } catch {
-    return `Rs ${value.toLocaleString()}`
-  }
-}
+import { formatPricePKR, isLahore, LAHORE_ONLY_MESSAGE } from '../lib/pricing'
 
 type FormState = {
   email: string
@@ -36,10 +30,12 @@ export default function Checkout() {
     firstName: '',
     lastName: '',
     address: '',
-    city: '',
+    city: 'Lahore',
     phone: '',
   })
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+
+  const { subtotal, deliveryFee, total } = useOrderTotals(items)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -67,6 +63,10 @@ export default function Checkout() {
       nextErrors.email = 'Please enter a valid email address.'
     }
 
+    if (form.city.trim() && !isLahore(form.city)) {
+      nextErrors.city = LAHORE_ONLY_MESSAGE
+    }
+
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors)
       return
@@ -88,6 +88,8 @@ export default function Checkout() {
         image: i.image,
       })),
       paymentMethod: payment,
+      subtotal,
+      deliveryFee,
       total,
     }
 
@@ -102,12 +104,10 @@ export default function Checkout() {
     })
   }
 
-  const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [items],
+  const deliveryLabel = useMemo(
+    () => (deliveryFee === 0 ? 'Free' : formatPricePKR(deliveryFee)),
+    [deliveryFee],
   )
-
-  const total = subtotal // standard delivery free
 
   return (
     <section className="w-full bg-white">
@@ -119,7 +119,7 @@ export default function Checkout() {
               Checkout
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
-              Enter your details to place the order.
+              Enter your details to place the order. Delivery in Lahore only.
             </p>
           </div>
           <Link
@@ -143,12 +143,13 @@ export default function Checkout() {
           </div>
         ) : (
           <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_380px]">
-            {/* Left: form */}
             <form
               onSubmit={handleSubmit}
               className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-7"
             >
               <div className="text-sm font-semibold text-slate-900">Contact & shipping</div>
+
+              <DeliveryInfoBanner className="mt-4" />
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
@@ -195,15 +196,18 @@ export default function Checkout() {
                   />
                 </div>
 
-                <Input
-                  label="City"
-                  name="city"
-                  value={form.city}
-                  onChange={handleChange}
-                  type="text"
-                  placeholder="City"
-                  error={errors.city}
-                />
+                <div>
+                  <Input
+                    label="City"
+                    name="city"
+                    value={form.city}
+                    onChange={handleChange}
+                    type="text"
+                    placeholder="Lahore"
+                    error={errors.city}
+                  />
+                  <p className="mt-1.5 text-xs text-slate-500">We currently deliver in Lahore only.</p>
+                </div>
 
                 <Input
                   label="Phone"
@@ -216,21 +220,21 @@ export default function Checkout() {
                 />
               </div>
 
-              {/* Shipping */}
               <div className="mt-7">
-                <div className="text-sm font-semibold text-slate-900">Shipping</div>
+                <div className="text-sm font-semibold text-slate-900">Delivery</div>
                 <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="text-sm font-semibold text-slate-900">Standard delivery</div>
-                      <div className="mt-1 text-sm text-slate-600">Delivered in a few working days.</div>
+                      <div className="text-sm font-semibold text-slate-900">Lahore delivery</div>
+                      <div className="mt-1 text-sm text-slate-600">
+                        Delivered in a few working days within Lahore.
+                      </div>
                     </div>
-                    <div className="text-sm font-semibold text-slate-900">Free</div>
+                    <div className="text-sm font-semibold text-slate-900">{deliveryLabel}</div>
                   </div>
                 </div>
               </div>
 
-              {/* Payment */}
               <div className="mt-7">
                 <div className="text-sm font-semibold text-slate-900">Payment</div>
                 <div className="mt-3 space-y-3">
@@ -276,7 +280,6 @@ export default function Checkout() {
               </Button>
             </form>
 
-            {/* Right: summary */}
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="rounded-2xl border border-slate-200 bg-white p-5">
                 <div className="text-sm font-semibold text-slate-900">Order summary</div>
@@ -300,27 +303,12 @@ export default function Checkout() {
                           Qty {item.quantity} • {formatPricePKR(item.price)}
                         </div>
                       </div>
-                      <div className="text-sm font-semibold text-slate-900">
-                        {formatPricePKR(item.price * item.quantity)}
-                      </div>
                     </li>
                   ))}
                 </ul>
 
-                <div className="mt-6 space-y-3">
-                  <div className="flex items-center justify-between text-sm text-slate-700">
-                    <span>Subtotal</span>
-                    <span className="font-semibold text-slate-900">{formatPricePKR(subtotal)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-slate-700">
-                    <span>Shipping</span>
-                    <span className="font-semibold text-slate-900">Free</span>
-                  </div>
-                  <div className="h-px w-full bg-slate-200" />
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-slate-900">Total</span>
-                    <span className="text-lg font-semibold text-slate-900">{formatPricePKR(total)}</span>
-                  </div>
+                <div className="mt-6">
+                  <OrderTotalsSummary items={items} />
                 </div>
               </div>
             </aside>
@@ -330,4 +318,3 @@ export default function Checkout() {
     </section>
   )
 }
-
