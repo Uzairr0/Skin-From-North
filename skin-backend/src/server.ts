@@ -1,33 +1,25 @@
 import cors from 'cors'
 import express from 'express'
 import { env } from './config/env'
+import { getAllowedOrigins } from './config/cors'
 import { connectDb } from './config/db'
 import routes from './routes'
 
 async function main() {
   const app = express()
 
-  app.use(
-    cors(
-      env.nodeEnv === 'production'
-        ? {
-            // Production: allow listed frontend origins (comma-separated in CLIENT_ORIGIN)
-            origin: (origin, callback) => {
-              if (!origin || env.clientOrigins.includes(origin)) {
-                callback(null, true)
-                return
-              }
-              callback(new Error(`CORS blocked for origin: ${origin}`))
-            },
-            credentials: true,
-          }
-        : {
-            // Dev: allow any origin (reflected) so local tooling works with credentials/cookies if needed
-            origin: true,
-            credentials: true,
-          },
-    ),
-  )
+  const allowedOrigins = getAllowedOrigins()
+
+  const corsOptions: cors.CorsOptions = {
+    origin: env.nodeEnv === 'production' ? allowedOrigins : true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }
+
+  app.use(cors(corsOptions))
+  app.options(/.*/, cors(corsOptions))
+
   app.use(express.json({ limit: '1mb' }))
 
   app.get('/', (_req, res) => {
@@ -55,6 +47,10 @@ async function main() {
   app.listen(env.port, () => {
     // eslint-disable-next-line no-console
     console.log(`API listening on http://localhost:${env.port}`)
+    if (env.nodeEnv === 'production') {
+      // eslint-disable-next-line no-console
+      console.log('CORS allowed origins:', allowedOrigins.join(', '))
+    }
     if (env.nodeEnv === 'production' && env.adminToken === 'admin123') {
       // eslint-disable-next-line no-console
       console.warn('WARNING: Change ADMIN_TOKEN and ADMIN_PASSWORD before going live.')

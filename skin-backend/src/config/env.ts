@@ -6,10 +6,10 @@ function parseClientOrigins() {
   const raw =
     process.env.CLIENT_ORIGINS ??
     process.env.CLIENT_ORIGIN ??
-    'http://localhost:5173'
+    ''
   return raw
-    .split(',')
-    .map((value) => value.trim())
+    .split(/[,;]/)
+    .map((value) => value.trim().replace(/^['"]|['"]$/g, '').replace(/\/$/, ''))
     .filter(Boolean)
 }
 
