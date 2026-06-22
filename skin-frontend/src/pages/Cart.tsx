@@ -6,6 +6,7 @@ import { DeliveryInfoBanner, OrderTotalsSummary } from '../components/OrderTotal
 import { formatPricePKR } from '../lib/pricing'
 
 export default function Cart() {
+  const { items, removeFromCart, updateQuantity, clearCart } = useCart()
 
   return (
     <section className="w-full bg-white">
