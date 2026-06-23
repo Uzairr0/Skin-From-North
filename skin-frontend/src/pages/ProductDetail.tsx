@@ -7,7 +7,8 @@ import { useProductSearch } from '../context/SearchContext'
 import Seo from '../components/Seo'
 import { Button } from '../components/ui/Button'
 import ProductUsageGuide from '../components/ProductUsageGuide'
-import { DELIVERY_NOTE, formatPricePKR } from '../lib/pricing'
+import PriceDisplay from '../components/PriceDisplay'
+import { DELIVERY_NOTE } from '../lib/pricing'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -137,10 +138,14 @@ export default function ProductDetail() {
             </h1>
 
             <div className="mt-4">
-              <div className="text-2xl font-semibold tracking-tight text-slate-900">
-                {formatPricePKR(product.price)}
-              </div>
-              <p className="mt-1.5 text-sm text-slate-600">{DELIVERY_NOTE}</p>
+              <PriceDisplay
+                price={product.price}
+                originalPrice={product.originalPrice}
+                brand={product.brand}
+                size="lg"
+                showOriginNote
+              />
+              <p className="mt-2 text-sm text-slate-600">{DELIVERY_NOTE}</p>
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">

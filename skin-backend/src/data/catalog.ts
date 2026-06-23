@@ -6,10 +6,10 @@ export type CatalogProduct = {
 
 /** Authoritative product prices — keep in sync with skin-frontend/src/data/product.ts */
 export const PRODUCT_CATALOG: Record<number, CatalogProduct> = {
-  1: { id: 1, name: 'Niacinamide 10% Zinc', price: 2999 },
-  2: { id: 2, name: 'Salicylic Acid 2%', price: 3699 },
-  3: { id: 3, name: 'Glycolic Acid 7% Toner', price: 4199 },
-  4: { id: 4, name: 'Alpha Arbutin 2% HA', price: 5499 },
+  1: { id: 1, name: 'Niacinamide 10% Zinc', price: 2799 },
+  2: { id: 2, name: 'Salicylic Acid 2%', price: 3499 },
+  3: { id: 3, name: 'Glycolic Acid 7% Toner', price: 3999 },
+  4: { id: 4, name: 'Alpha Arbutin 2% HA', price: 5299 },
 }
 
 export type IncomingOrderItem = {

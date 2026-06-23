@@ -10,6 +10,7 @@ export type Product = {
   name: string
   brand: 'CeraVe' | 'Cetaphil' | 'The Ordinary'
   price: number
+  originalPrice?: number
   rating: number
   skinType: 'All Skin Types' | 'Oily' | 'Dry' | 'Acne' | 'Sensitive'
   benefit: string
@@ -38,7 +39,8 @@ export const products: Product[] = [
     id: 1,
     name: 'Niacinamide 10% Zinc',
     brand: 'The Ordinary',
-    price: 2999,
+    price: 2799,
+    originalPrice: 2999,
     rating: 4.8,
     skinType: 'All Skin Types',
     benefit: 'Reduces pores & balances oil',
@@ -66,7 +68,8 @@ export const products: Product[] = [
     id: 2,
     name: 'Salicylic Acid 2%',
     brand: 'The Ordinary',
-    price: 3699,
+    price: 3499,
+    originalPrice: 3699,
     rating: 4.6,
     skinType: 'Acne',
     benefit: 'Fights acne & oil control',
@@ -94,7 +97,8 @@ export const products: Product[] = [
     id: 3,
     name: 'Glycolic Acid 7% Toner',
     brand: 'The Ordinary',
-    price: 4199,
+    price: 3999,
+    originalPrice: 4199,
     rating: 4.5,
     skinType: 'All Skin Types',
     benefit: 'Brightens skin & smooths texture',
@@ -122,7 +126,8 @@ export const products: Product[] = [
     id: 4,
     name: 'Alpha Arbutin 2% HA',
     brand: 'The Ordinary',
-    price: 5499,
+    price: 5299,
+    originalPrice: 5499,
     rating: 4.7,
     skinType: 'All Skin Types',
     benefit: 'Fades dark spots & evens tone',

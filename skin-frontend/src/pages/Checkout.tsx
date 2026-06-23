@@ -37,7 +37,7 @@ export default function Checkout() {
 
   const { subtotal, deliveryFee, total } = useOrderTotals(items)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
     setErrors((prev) => {
@@ -197,16 +197,23 @@ export default function Checkout() {
                 </div>
 
                 <div>
-                  <Input
-                    label="City"
-                    name="city"
-                    value={form.city}
-                    onChange={handleChange}
-                    type="text"
-                    placeholder="Lahore"
-                    error={errors.city}
-                  />
-                  <p className="mt-1.5 text-xs text-slate-500">We currently deliver in Lahore only.</p>
+                  <label className="block">
+                    <div className="text-xs font-medium text-slate-700">City</div>
+                    <select
+                      name="city"
+                      value={form.city}
+                      onChange={handleChange}
+                      aria-invalid={Boolean(errors.city)}
+                      className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2f5d3a]/20"
+                    >
+                      <option value="Lahore">Lahore</option>
+                    </select>
+                    {errors.city ? (
+                      <div className="mt-1 text-xs font-medium text-red-600">{errors.city}</div>
+                    ) : (
+                      <p className="mt-1.5 text-xs text-slate-500">We currently deliver in Lahore only.</p>
+                    )}
+                  </label>
                 </div>
 
                 <Input

@@ -1,8 +1,8 @@
 import {
   calculateDelivery,
+  DELIVERY_NOTE,
   formatPricePKR,
   FREE_DELIVERY_HINT,
-  getCartItemCount,
   getCartSubtotal,
 } from '../lib/pricing'
 
@@ -10,8 +10,7 @@ type Item = { price: number; quantity: number }
 
 export function useOrderTotals(items: Item[]) {
   const subtotal = getCartSubtotal(items)
-  const itemCount = getCartItemCount(items)
-  return calculateDelivery(subtotal, itemCount)
+  return calculateDelivery(subtotal)
 }
 
 type OrderTotalsSummaryProps = {
@@ -70,7 +69,7 @@ export function DeliveryInfoBanner({ className = '' }: { className?: string }) {
       ].join(' ')}
     >
       <span className="font-semibold text-[#2f5d3a]">Lahore delivery only.</span>{' '}
-      Standard delivery is {formatPricePKR(250)} per order. {FREE_DELIVERY_HINT}.
+      {DELIVERY_NOTE}. {FREE_DELIVERY_HINT}.
     </div>
   )
 }

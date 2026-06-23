@@ -1,7 +1,6 @@
 export const DELIVERY_FEE = 250
 export const FREE_DELIVERY_MIN_SUBTOTAL = 8000
-export const FREE_DELIVERY_MIN_PRODUCTS = 2
-export const LAHORE_ONLY_MESSAGE = 'Sorry, we currently only deliver in Lahore.'
+export const LAHORE_ONLY_MESSAGE = 'We currently only deliver in Lahore only'
 
 export type CartLine = { quantity: number; price: number }
 
@@ -29,9 +28,8 @@ export function isLahore(city: string) {
   return city.trim().toLowerCase() === 'lahore'
 }
 
-export function calculateDelivery(subtotal: number, itemCount: number) {
-  const qualifiesFree =
-    itemCount >= FREE_DELIVERY_MIN_PRODUCTS && subtotal >= FREE_DELIVERY_MIN_SUBTOTAL
+export function calculateDelivery(subtotal: number) {
+  const qualifiesFree = subtotal >= FREE_DELIVERY_MIN_SUBTOTAL
   const deliveryFee = qualifiesFree ? 0 : DELIVERY_FEE
   return {
     subtotal,
@@ -41,7 +39,6 @@ export function calculateDelivery(subtotal: number, itemCount: number) {
   }
 }
 
-export const FREE_DELIVERY_HINT =
-  'Free delivery on orders of 2+ products and Rs. 8,000 or above'
+export const FREE_DELIVERY_HINT = 'Free delivery on orders of Rs. 8,000 or above'
 
-export const DELIVERY_NOTE = `Delivery Charges: ${formatPricePKR(DELIVERY_FEE)} (Lahore only)`
+export const DELIVERY_NOTE = 'Delivery: Rs. 250 (Free above Rs. 8000)'

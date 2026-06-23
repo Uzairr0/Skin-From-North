@@ -5,18 +5,7 @@ import type { Product } from '../data/product'
 import { skinTypeLabel } from '../data/product'
 import { useCart } from '../context/CartContext'
 import StarRating from './StarRating'
-
-function formatPricePKR(value: number) {
-  try {
-    return new Intl.NumberFormat('en-PK', {
-      style: 'currency',
-      currency: 'PKR',
-      maximumFractionDigits: 0,
-    }).format(value)
-  } catch {
-    return `Rs ${value.toLocaleString()}`
-  }
-}
+import PriceDisplay from './PriceDisplay'
 
 export type ProductCardProps = {
   product: Product
@@ -151,8 +140,13 @@ export default function ProductCard({
           <span className="text-slate-700">{skinTypeLabel(product.skinType)}</span>
         </p>
 
-        <div className="mt-3 text-lg font-bold tracking-tight text-[#2f5d3a] sm:text-xl">
-          {formatPricePKR(product.price)}
+        <div className="mt-3">
+          <PriceDisplay
+            price={product.price}
+            originalPrice={product.originalPrice}
+            brand={product.brand}
+            size="sm"
+          />
         </div>
       </div>
     </article>

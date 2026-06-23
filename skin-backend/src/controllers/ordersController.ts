@@ -93,8 +93,7 @@ export async function createOrder(req: Request, res: Response) {
       return res.status(400).json({ ok: false, message: LAHORE_ONLY_MESSAGE })
     }
 
-    const itemCount = priced.items.reduce((sum, i) => sum + i.quantity, 0)
-    const delivery = calculateDelivery(priced.subtotal, itemCount)
+    const delivery = calculateDelivery(priced.subtotal)
 
     const payment =
       paymentMethod === 'card' || paymentMethod === 'cod' ? paymentMethod : 'cod'
